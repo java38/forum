@@ -2,6 +2,7 @@ package telran.java38.user.service;
 
 import java.util.Set;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,9 @@ public class AccountServiceImpl implements AccountService {
 		if (accountRepository.existsById(userRegDto.getLogin())) {
 			throw new UserConflictException(userRegDto.getLogin());
 		}
+		String hashPassword = BCrypt.hashpw(userRegDto.getPassword(), BCrypt.gensalt());
 		UserProfile userProfile = new UserProfile(userRegDto.getLogin(),
-				userRegDto.getPassword(), userRegDto.getFirstName(),
+				hashPassword, userRegDto.getFirstName(),
 				userRegDto.getLastName());
 		accountRepository.save(userProfile);
 		return modelMapper.map(userProfile, UserProfileDto.class);
@@ -68,7 +70,8 @@ public class AccountServiceImpl implements AccountService {
 	public void changePassword(String login, String password) {
 		UserProfile userProfile = accountRepository.findById(login).orElseThrow(() -> new UserNotFoundException(login));
 		if(password != null) {
-			userProfile.setPassword(password);
+			String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+			userProfile.setPassword(hashPassword);
 			accountRepository.save(userProfile);
 		}
 

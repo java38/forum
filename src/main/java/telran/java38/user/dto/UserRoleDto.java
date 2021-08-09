@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class UserRoleDto {
 	String role;
-	boolean isSet;
+	boolean addRole;
 }
