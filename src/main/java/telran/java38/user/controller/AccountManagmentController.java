@@ -40,7 +40,7 @@ public class AccountManagmentController {
 		return accountService.findUserById(login);
 	}
 
-	@PutMapping
+	@PutMapping("/{login}")
 	public UserProfileDto updateUser(@PathVariable String login, @RequestBody UserUpdateDto userUpdateDto) {
 		return accountService.updateUser(login, userUpdateDto);
 	}
