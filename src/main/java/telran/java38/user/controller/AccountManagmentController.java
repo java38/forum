@@ -1,5 +1,6 @@
 package telran.java38.user.controller;
 
+import java.security.Principal;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,9 @@ public class AccountManagmentController {
 		return accountService.addUser(userRegDto);
 	}
 
-	// FIXME login endpoint
-	@PostMapping("/{login}")
-	public UserProfileDto userLogin(@PathVariable String login) {
-		return accountService.findUserById(login);
+	@PostMapping("/login")
+	public UserProfileDto userLogin(Principal principal) {
+		return accountService.findUserById(principal.getName());
 	}
 
 	@PutMapping("/{login}")

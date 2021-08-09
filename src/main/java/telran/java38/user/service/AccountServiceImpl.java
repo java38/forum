@@ -68,6 +68,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public void changePassword(String login, String password) {
+		//FIXME update exp date
 		UserProfile userProfile = accountRepository.findById(login).orElseThrow(() -> new UserNotFoundException(login));
 		if(password != null) {
 			String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
