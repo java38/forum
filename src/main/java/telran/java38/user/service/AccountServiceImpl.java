@@ -46,8 +46,15 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public UserProfileDto updateUser(String login, UserUpdateDto userUpdateDto) {
-		// TODO Auto-generated method stub
-		return null;
+		UserProfile userProfile =accountRepository.findById(login).orElseThrow(() -> new UserNotFoundException(login));
+		if (userUpdateDto.getFirstName() != null) {
+			userProfile.setFirstName(userUpdateDto.getFirstName());
+		}
+		if (userUpdateDto.getLastName() != null) {
+			userProfile.setLastName(userUpdateDto.getLastName());
+		}
+		accountRepository.save(userProfile);
+		return modelMapper.map(userProfile, UserProfileDto.class);
 	}
 
 	@Override
@@ -59,14 +66,24 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public void changePassword(String login, String password) {
-		// TODO Auto-generated method stub
+		UserProfile userProfile = accountRepository.findById(login).orElseThrow(() -> new UserNotFoundException(login));
+		if(password != null) {
+			userProfile.setPassword(password);
+			accountRepository.save(userProfile);
+		}
 
 	}
 
 	@Override
 	public Set<String> updateRolesList(String login, String role, boolean isSet) {
-		// TODO Auto-generated method stub
-		return null;
+		UserProfile userProfile = accountRepository.findById(login).orElseThrow(() -> new UserNotFoundException(login));
+		if (isSet) {
+			userProfile.addRole(role);
+		}else {
+			userProfile.removeRole(role);
+		}
+		accountRepository.save(userProfile);
+		return userProfile.getRoles();
 	}
 
 }

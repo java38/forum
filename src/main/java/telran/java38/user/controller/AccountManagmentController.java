@@ -1,5 +1,7 @@
 package telran.java38.user.controller;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import telran.java38.user.dto.UserPasswordDto;
 import telran.java38.user.dto.UserProfileDto;
 import telran.java38.user.dto.UserRegDto;
+import telran.java38.user.dto.UserRoleDto;
 import telran.java38.user.dto.UserUpdateDto;
 import telran.java38.user.service.AccountService;
 
@@ -44,6 +48,16 @@ public class AccountManagmentController {
 	@DeleteMapping("/{login}")
 	public UserProfileDto removeUser(@PathVariable String login) {
 		return accountService.removeUser(login);
+	}
+
+	@PutMapping("/{login}/password")
+	public void updateUser(@PathVariable String login, @RequestBody UserPasswordDto userPasswordDto) {
+		accountService.changePassword(login, userPasswordDto.getPassword());
+	}
+
+	@PutMapping("/{login}/role")
+	public Set<String> updateUserRole(@PathVariable String login, @RequestBody UserRoleDto userRoleDto) {
+		return accountService.updateRolesList(login, userRoleDto.getRole(), userRoleDto.isSet());
 	}
 
 }
