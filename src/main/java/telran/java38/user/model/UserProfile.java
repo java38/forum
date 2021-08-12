@@ -27,14 +27,15 @@ public class UserProfile {
 	@Setter
 	LocalDate expDate;
 
-	public UserProfile(String login, String password, String firstName, String lastName) {
+	public UserProfile(String login, String password, String firstName, 
+			String lastName, LocalDate expDate) {
 		this.login = login;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		roles = new HashSet<>();
 		roles.add("User");
-		expDate = LocalDate.now().plusDays(60);
+		this.expDate = expDate;
 	}
 	
 	public boolean addRole(String role) {

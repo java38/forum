@@ -12,15 +12,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Service;
 
 import telran.java38.forum.dao.PostRepository;
+import telran.java38.forum.model.Post;
 import telran.java38.user.dao.AccountRepository;
+import telran.java38.user.model.UserProfile;
 
-@Service
-@Order(20)
-public class AuthorizationFilter implements Filter {
+public class ModeratorFilter implements Filter{
+	
+	@Autowired
+	AccountRepository accountRepository;
+
+	@Autowired
+	PostRepository postRepository;
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
@@ -30,8 +34,15 @@ public class AuthorizationFilter implements Filter {
 		Principal principal = request.getUserPrincipal();
 		if (principal != null && checkEndPoints(request.getServletPath(), request.getMethod())) {
 			String path = request.getServletPath();
-			String login = path.split("/")[2];
-			if (!login.equals(principal.getName())) {
+			String postId = path.split("/")[3];
+			Post post = postRepository.findById(postId).orElse(null);
+			if (post == null) {
+				response.sendError(404, "Post not found");
+				return;
+			}
+			UserProfile userProfile = accountRepository.findById(principal.getName()).orElse(null);
+			if (!(principal.getName().equals(post.getAuthor())
+					|| userProfile.getRoles().contains("Moderator"))){
 				response.sendError(403);
 				return;
 			}
@@ -42,8 +53,9 @@ public class AuthorizationFilter implements Filter {
 	}
 
 	private boolean checkEndPoints(String path, String method) {
-		return ("PUT".equalsIgnoreCase(method) && path.matches("[/]account[/]\\w+[/]?")
-				|| "PUT".equalsIgnoreCase(method) && path.matches("[/]account[/]\\w+[/]password[/]?"));
+		return ("PUT".equalsIgnoreCase(method) && path.matches("[/]forum[/]post[/]\\w+[/]?")
+				|| "DELETE".equalsIgnoreCase(method) && path.matches("[/]forum[/]post[/]\\w+[/]?"));
 	}
+
 
 }

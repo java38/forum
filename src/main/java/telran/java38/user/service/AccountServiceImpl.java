@@ -1,10 +1,12 @@
 package telran.java38.user.service;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import telran.java38.user.dao.AccountRepository;
@@ -20,6 +22,9 @@ public class AccountServiceImpl implements AccountService {
 
 	AccountRepository accountRepository;
 	ModelMapper modelMapper;
+	
+	@Value("${exp.value}")
+	long expPeriod;
 
 	@Autowired
 	public AccountServiceImpl(AccountRepository accountRepository, ModelMapper modelMapper) {
@@ -35,7 +40,7 @@ public class AccountServiceImpl implements AccountService {
 		String hashPassword = BCrypt.hashpw(userRegDto.getPassword(), BCrypt.gensalt());
 		UserProfile userProfile = new UserProfile(userRegDto.getLogin(),
 				hashPassword, userRegDto.getFirstName(),
-				userRegDto.getLastName());
+				userRegDto.getLastName(), LocalDate.now().plusDays(expPeriod));
 		accountRepository.save(userProfile);
 		return modelMapper.map(userProfile, UserProfileDto.class);
 	}
@@ -68,11 +73,11 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public void changePassword(String login, String password) {
-		//FIXME update exp date
 		UserProfile userProfile = accountRepository.findById(login).orElseThrow(() -> new UserNotFoundException(login));
 		if(password != null) {
 			String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 			userProfile.setPassword(hashPassword);
+			userProfile.setExpDate(LocalDate.now().plusDays(expPeriod));
 			accountRepository.save(userProfile);
 		}
 

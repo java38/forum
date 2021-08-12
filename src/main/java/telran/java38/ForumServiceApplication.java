@@ -25,10 +25,9 @@ public class ForumServiceApplication implements CommandLineRunner{
 	public void run(String... args) throws Exception {
 		if(!accountRepository.existsById("admin")) {
 			String hashPassword = BCrypt.hashpw("admin", BCrypt.gensalt());
-			UserProfile admin = new UserProfile("admin", hashPassword, "", "");
+			UserProfile admin = new UserProfile("admin", hashPassword, "", "", LocalDate.now().plusYears(25));
 			admin.addRole("Moderator");
 			admin.addRole("Administrator");
-			admin.setExpDate(LocalDate.now().plusYears(25));
 			accountRepository.save(admin);
 		}
 		
