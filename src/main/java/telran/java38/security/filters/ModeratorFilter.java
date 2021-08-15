@@ -12,12 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
 
 import telran.java38.forum.dao.PostRepository;
 import telran.java38.forum.model.Post;
 import telran.java38.user.dao.AccountRepository;
 import telran.java38.user.model.UserProfile;
 
+@Service
+@Order(30)
 public class ModeratorFilter implements Filter{
 	
 	@Autowired
