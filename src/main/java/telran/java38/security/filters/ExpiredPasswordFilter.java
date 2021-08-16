@@ -2,6 +2,7 @@ package telran.java38.security.filters;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.LocalDate;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -11,12 +12,19 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+import telran.java38.user.dao.AccountRepository;
+import telran.java38.user.model.UserProfile;
+
 @Service
-@Order(20)
-public class AuthorizationFilter implements Filter {
+@Order(15)
+public class ExpiredPasswordFilter implements Filter {
+
+	@Autowired
+	AccountRepository accountRepository;
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
@@ -25,10 +33,9 @@ public class AuthorizationFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) resp;
 		Principal principal = request.getUserPrincipal();
 		if (principal != null && checkEndPoints(request.getServletPath(), request.getMethod())) {
-			String path = request.getServletPath();
-			String login = path.split("/")[2];
-			if (!login.equals(principal.getName())) {
-				response.sendError(403);
+			UserProfile userProfile = accountRepository.findById(principal.getName()).orElse(null);
+			if (userProfile.getExpDate().isBefore(LocalDate.now())) {
+				response.sendError(403, "password expired");
 				return;
 			}
 		}
@@ -38,8 +45,7 @@ public class AuthorizationFilter implements Filter {
 	}
 
 	private boolean checkEndPoints(String path, String method) {
-		return ("PUT".equalsIgnoreCase(method) && path.matches("[/]account[/]\\w+[/]?")
-				|| "PUT".equalsIgnoreCase(method) && path.matches("[/]account[/]\\w+[/]password[/]?"));
+		return !("PUT".equalsIgnoreCase(method) && path.matches("[/]account[/]\\w+[/]password[/]?"));
 	}
 
 }

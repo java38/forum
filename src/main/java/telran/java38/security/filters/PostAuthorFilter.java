@@ -15,8 +15,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 @Service
-@Order(20)
-public class AuthorizationFilter implements Filter {
+@Order(60)
+public class PostAuthorFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
@@ -26,20 +26,18 @@ public class AuthorizationFilter implements Filter {
 		Principal principal = request.getUserPrincipal();
 		if (principal != null && checkEndPoints(request.getServletPath(), request.getMethod())) {
 			String path = request.getServletPath();
-			String login = path.split("/")[2];
-			if (!login.equals(principal.getName())) {
+			String author = path.split("/")[3];
+			if (!principal.getName().equals(author)){
 				response.sendError(403);
 				return;
 			}
 		}
-
 		chain.doFilter(request, response);
 
 	}
 
 	private boolean checkEndPoints(String path, String method) {
-		return ("PUT".equalsIgnoreCase(method) && path.matches("[/]account[/]\\w+[/]?")
-				|| "PUT".equalsIgnoreCase(method) && path.matches("[/]account[/]\\w+[/]password[/]?"));
+		return ("POST".equalsIgnoreCase(method) && path.matches("[/]forum[/]post[/]\\w+[/]?"));
 	}
 
 }
